@@ -43,6 +43,7 @@ class Host(object):
             key = Key()
         self.key = key
         self.commands = []
+        self.config = []
 
         self.ns_exec = "ip netns exec wgns "
         self.add_ns("wgns")
@@ -60,6 +61,8 @@ class Host(object):
             self.home = os.environ.get("HOME", "/root")
         self.private_key_path = os.path.join(self.home, "wg-world_prikey")
         self.add_cmd("echo '%s' > %s" % (self.key.sk, self.private_key_path))
+        self.add_config("[Interface]")
+        self.add_config("PrivateKey = {}".format(self.key.sk))
 
     def add_ns(self, name):
         self.add_cmd("ip netns del %s | true" % name)
@@ -82,18 +85,31 @@ class Host(object):
     def add_cmd(self, cmd):
         self.commands.append(cmd)
 
+    def add_config(self,cfgline):
+        self.config.append(cfgline)
+
     def connect(self, right, my_ip, right_ip, mtu, listen_port=None, endpoint=None):
         dev = "wg.to." +right.hostname
 
         self.add_cmd(self.ns_exec + "ip link del dev %s | true" % dev)
         self.add_cmd(self.ns_exec + "ip link add dev %s type wireguard" % dev)
         self.add_cmd(self.ns_exec + "ip address add dev %s %s/30" % (dev, my_ip))
+        self.add_config("Address = {}/30".format(my_ip))
+        #self.add_config("DNS = 10.56.100.1")
+        self.add_config("DNS = 8.8.8.8")
         self.add_cmd(self.ns_exec + "ip link set mtu %s dev %s" % (mtu, dev))
+        self.add_config("MTU = {}".format(mtu))
         if listen_port:
             self.add_iptable("nat", "PREROUTING", "-p udp --dport %d -j DNAT --to-destination 10.233.233.2" % listen_port)
             self.add_cmd(self.ns_exec + "wg set %s listen-port %d private-key %s peer %s allowed-ips 0.0.0.0/0 persistent-keepalive 30" % (dev, listen_port, self.private_key_path, right.key.pk))
         else:
             self.add_cmd(self.ns_exec + "wg set %s private-key %s peer %s allowed-ips 0.0.0.0/0 endpoint %s persistent-keepalive 30" % (dev, self.private_key_path, right.key.pk, endpoint))
+            self.add_config("")
+            self.add_config("[Peer]")
+            self.add_config("PublicKey = {}".format(right.key.pk))
+            self.add_config("Endpoint = {}".format(endpoint))
+            self.add_config("AllowedIPs = 0.0.0.0/0, ::0/0")
+            self.add_config("PersistentKeepalive = {}".format(30))
         self.add_iptable("mangle", "POSTROUTING", "-o %s -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu" % dev, in_ns=True)
         self.add_cmd(self.ns_exec + "ip link set up dev %s" % dev)
 
@@ -108,6 +124,11 @@ class Host(object):
             f.write("#! /bin/bash\n\nset -e\n\n")
             f.write(self.cmds_str())
         os.system("chmod +x %s" % name)
+
+    def save_configs_as_config(self, path):
+        with open(path, "w") as f:
+            save = "\n".join(self.config)
+            f.write(save)
 
     def add_ipset(self, url, in_ns=False):
         ns_exec = self.ns_exec if in_ns else ""

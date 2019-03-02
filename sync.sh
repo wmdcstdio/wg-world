@@ -1,9 +1,12 @@
 #! /bin/bash
 
-scp ./bj.sh bj.nossl.cn:~/bj.sh
-scp ./lax.sh lax.nossl.cn:~/lax.sh
-scp ./dorm.sh 10.56.40.1:~/dorm.sh
+scp ./data/bj.key bjt5:~/bj.key
+scp ./data/lax.key vultr_nj:~/lax.key
 
-scp ./yaoyao.py bj.nossl.cn:~/
-scp ./yaoyao.py lax.nossl.cn:~/
-scp ./yaoyao.py 10.56.40.1:~/
+scp ./data/bj.sh bjt5:~/bj.sh
+scp ./data/lax.sh vultr_nj:~/lax.sh
+#scp ./dorm.sh 10.56.40.1:~/dorm.sh
+
+scp ./yaoyao.py bjt5:~/
+scp ./yaoyao.py vultr_nj:~/
+#scp ./yaoyao.py 10.56.40.1:~/
