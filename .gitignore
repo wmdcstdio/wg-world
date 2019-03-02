@@ -7,3 +7,4 @@ lax.sh
 __pycache__
 *.key
 data*
+*.swp
