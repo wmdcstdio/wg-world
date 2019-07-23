@@ -1,6 +1,6 @@
-dev1:
-dev2:
-dev3:
+dev1: hezexue
+dev2: zouyuheng
+dev3: zhangjiaming
 dev4: CSTDIO-THINKPAD
 dev5: HOME-IMac
 dev6: wangzhi-HUAWEI
