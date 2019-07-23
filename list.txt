@@ -1,8 +1,0 @@
-dev1: hezexue
-dev2: zouyuheng
-dev3: zhangjiaming
-dev4: CSTDIO-THINKPAD
-dev5: HOME-IMac
-dev6: wangzhi-HUAWEI
-dev7: wangmengdi-HUAWEI-p20
-dev8: CSTDIO-HASEE
