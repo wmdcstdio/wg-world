@@ -4,7 +4,7 @@ from ww import Key, Host, Link
 import os
 
 inwall_server_ip = "47.94.166.125"
-outwall_server_ip = "149.28.60.68"
+outwall_server_ip = "104.238.129.4"
 client_num=16
 client_name=lambda i:"dev{}".format(i+1)
 pref = "./data"
